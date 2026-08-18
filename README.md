@@ -1,11 +1,14 @@
-# União Brasil V4 — Pedidos Interativos
+# União Brasil V4.1 — Pedidos Interativos (corrigido)
 
-Prévia funcional para GitHub Pages.
+Versão corrigida para GitHub Pages.
 
-Novidade: o público pode solicitar uma entrega demonstrativa, escolher medicamento, quantidade e destino, ver a rota saindo do CD de Embu, distância simulada, drone recomendado e tempo acelerado de apresentação.
+Na página inicial deve aparecer **FAZER PEDIDO**.
+O fluxo permite escolher medicamento, quantidade e destino, calcular uma rota demonstrativa saindo do CD de Embu, confirmar o pedido e seguir para o rastreamento.
 
-IMPORTANTE: esta prévia ainda não sincroniza aparelhos diferentes. O pedido criado em um celular não aparece automaticamente no projetor. Essa sincronização exige um banco/backend online e será a próxima etapa.
+## Atualização no GitHub
+Substitua os arquivos `index.html`, `styles.css` e `app.js` do repositório pelos arquivos desta versão.
+O `README.md` pode ser substituído também.
 
-Por privacidade, em apresentação pública prefira locais públicos ou endereços aproximados, não residências completas.
+Esta versão usa cache-busting (`?v=5`) para reduzir a chance de o navegador carregar arquivos antigos.
 
-Substitua index.html, styles.css e app.js no seu repositório GitHub Pages.
+Observação: a sincronização entre celulares diferentes e a Central ainda exige backend/banco online.

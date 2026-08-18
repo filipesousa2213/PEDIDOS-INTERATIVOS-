@@ -211,3 +211,8 @@ document.getElementById('calculateOrder').onclick=()=>{let dest=destination.valu
 document.getElementById('editOrder').onclick=()=>{orderConfirm.classList.add('hidden');orderForm.classList.remove('hidden')}
 document.getElementById('confirmNewOrder').onclick=()=>{let id='UB-'+Math.floor(1000+Math.random()*9000);orderConfirm.classList.add('hidden');orderSuccess.classList.remove('hidden');newOrderId.textContent='Pedido '+id+' • '+medicine.value;orderStatus.textContent='Pedido confirmado • DRN-007';newOrderData.id=id}
 document.getElementById('simulateNewOrder').onclick=()=>{alert('Pedido '+newOrderData.id+' pronto para a simulação. Nesta prévia, a missão é individual neste celular.');openClient()}
+
+document.addEventListener('DOMContentLoaded', function(){
+  const b=document.getElementById('orderBtn');
+  if(b) b.addEventListener('click', function(e){e.preventDefault(); openOrder();});
+});
