@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#04142c" />
+  <title>União Brasil — Rastreamento Inteligente</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="landing" class="landing">
+    <div class="landing-card">
+      <div class="brand-xl">
+        <div class="brand-mark">UB</div>
+        <div><strong>UNIÃO BRASIL</strong><span>OPERAÇÃO AÉREA</span></div>
+      </div>
+      <div class="hero-copy">
+        <span class="eyebrow">OPERAÇÃO AÉREA DE SAÚDE • EMBU DAS ARTES</span>
+        <h1>Rastreamento inteligente de entregas por drones</h1>
+        <p>Acompanhe uma entrega simulada em tempo real ou acesse a central operacional da apresentação.</p>
+      </div>
+
+      <div class="tracking-search">
+        <label for="tracking-code">Código da entrega</label>
+        <div class="search-row">
+          <input id="tracking-code" value="UB-EMBU-001" autocomplete="off">
+          <button id="track-order" class="primary compact">ACOMPANHAR</button>
+        </div>
+        <small>Use o código demonstrativo UB-EMBU-001</small>
+      </div>
+
+      <div class="landing-actions">
+        <button id="open-client" class="action-card">
+          <span class="action-icon">◎</span>
+          <div><strong>ACOMPANHAR ENTREGA</strong><small>Visualização do destinatário</small></div>
+          <b>→</b>
+        </button>
+        <button id="open-ops" class="action-card">
+          <span class="action-icon">⌖</span>
+          <div><strong>CENTRAL DE OPERAÇÕES</strong><small>Dashboard completo da frota</small></div>
+          <b>→</b>
+        </button>
+      </div>
+      <div class="landing-footer">Eficiência que salva vidas.</div>
+    </div>
+  </div>
+
+  <div id="client-app" class="client-app hidden">
+    <header class="client-header">
+      <button class="ghost" data-back-home>←</button>
+      <div class="mini-brand"><b>UB</b><span>UNIÃO BRASIL</span></div>
+      <span class="secure">● ONLINE</span>
+    </header>
+    <main class="client-main">
+      <section class="client-title">
+        <div>
+          <span class="eyebrow">ACOMPANHE SUA ENTREGA</span>
+          <h1>Pedido <span id="client-order">UB-EMBU-001</span></h1>
+        </div>
+        <span id="client-status" class="status-pill pulse">EM TRÂNSITO</span>
+      </section>
+
+      <section class="client-grid">
+        <div class="panel client-map-wrap">
+          <div class="panel-head">
+            <div><h2>ROTA EM TEMPO REAL</h2><span class="live">SIMULAÇÃO AO VIVO</span></div>
+          </div>
+          <div id="client-map"></div>
+          <div class="map-overlay">
+            <div><span>PREVISÃO</span><b id="client-eta">12:45</b></div>
+            <div><span>RESTANTE</span><b id="client-distance">4,4 km</b></div>
+          </div>
+        </div>
+
+        <div class="client-side">
+          <section class="panel progress-card">
+            <div class="progress-label"><span>Progresso da entrega</span><b id="client-progress-text">62%</b></div>
+            <div class="progress"><i id="client-progress-bar" style="width:62%"></i></div>
+            <div class="route-points"><span>CD União Brasil • Água Espraiada</span><span>Residência • Itatuba</span></div>
+          </section>
+
+          <section class="panel cargo-card">
+            <div class="panel-head"><h2>CONDIÇÕES DA CARGA</h2></div>
+            <div class="cargo-temp"><span>TEMPERATURA</span><strong id="client-temp">4,2°C</strong><b>ESTÁVEL</b></div>
+            <div class="safe-range"><span>Faixa segura: 2°C — 8°C</span><div><i id="temp-indicator"></i></div></div>
+            <div class="sensor-row"><span>✓ Lacre íntegro</span><span>✓ Sensor online</span><span id="lock-state">🔒 Compartimento travado</span></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>STATUS DA ENTREGA</h2></div>
+            <div id="client-timeline" class="timeline client-timeline">
+              <div class="done">✓ Pedido recebido <small>10:52</small></div>
+              <div class="done">✓ Medicamento separado <small>11:03</small></div>
+              <div class="done">✓ Carga preparada <small>11:14</small></div>
+              <div class="done">✓ Decolagem autorizada <small>11:20</small></div>
+              <div class="current">● Em trânsito <small>Agora</small></div>
+              <div>○ Próximo ao destino</div>
+              <div>○ Entrega concluída</div>
+            </div>
+          </section>
+
+          <button id="client-start" class="primary">▶ INICIAR DEMONSTRAÇÃO</button>
+          <button id="qr-sim" class="primary hidden">▣ SIMULAR LEITURA DO QR CODE</button>
+          <button id="pickup-confirm" class="success-btn hidden">✓ CONFIRMAR RETIRADA</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="ops-app" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">UB</div>
+        <div><strong>UNIÃO BRASIL</strong><span>OPERAÇÃO AÉREA</span></div>
+      </div>
+
+      <nav id="nav">
+        <button class="nav-item active" data-view="dashboard">◫ <span>Dashboard</span></button>
+        <button class="nav-item" data-view="deliveries">▣ <span>Entregas</span></button>
+        <button class="nav-item" data-view="tracking">◎ <span>Rastreamento</span></button>
+        <button class="nav-item" data-view="fleet">✈ <span>Frota</span></button>
+        <button class="nav-item" data-view="safety">◆ <span>Segurança & Impacto</span></button>
+        <button class="nav-item" data-view="alerts">△ <span>Alertas</span><b class="badge">2</b></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="ghost full" data-back-home>← Tela inicial</button>
+        <small>Eficiência que salva vidas.</small>
+        <span class="status-dot">● SISTEMA ONLINE</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="view-title">Central de Operações</h1>
+          <p>Embu das Artes — SP</p>
+        </div>
+        <div class="top-actions">
+          <div class="weather">☁ 22°C <small>Simulação</small></div>
+          <div class="clock" id="clock"></div>
+          <div class="online">● SISTEMA ONLINE</div>
+        </div>
+      </header>
+
+      <section class="view active" id="dashboard">
+        <div class="metrics">
+          <article><span>FROTA ATIVA</span><strong>12</strong><small>drones</small></article>
+          <article><span>EM ROTA</span><strong>5</strong><small>drones</small></article>
+          <article><span>EM ENTREGA</span><strong>3</strong><small>drones</small></article>
+          <article><span>RETORNANDO</span><strong>2</strong><small>drones</small></article>
+          <article><span>MANUTENÇÃO</span><strong>2</strong><small>drones</small></article>
+          <article><span>ENTREGAS HOJE</span><strong>48</strong><small>missões</small></article>
+          <article><span>TAXA DE SUCESSO</span><strong>97%</strong><small>no mês</small></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="panel map-panel">
+            <div class="panel-head">
+              <div>
+                <h2>MAPA OPERACIONAL — EMBU DAS ARTES</h2>
+                <span class="live">ROTAS SIMULADAS AO VIVO</span>
+              </div>
+              <div class="map-buttons">
+                <button id="reset-map">Centralizar</button>
+                <button id="incident-btn" class="danger-outline">Simular incidente</button>
+              </div>
+            </div>
+            <div id="map"></div>
+            <div class="legend">
+              <span><i class="dot blue"></i>Em rota</span>
+              <span><i class="dot green"></i>Em entrega</span>
+              <span><i class="dot cyan"></i>Retornando</span>
+              <span><i class="dot yellow"></i>Atenção</span>
+            </div>
+          </section>
+
+          <aside class="panel drone-panel">
+            <div class="panel-head"><h2>DRONE SELECIONADO</h2></div>
+            <div class="drone-hero">
+              <div class="drone-emoji">✈</div>
+              <div><strong id="sel-id">DRN-001</strong><small>DJI FlyCart 30</small><b id="sel-status">EM ROTA</b></div>
+            </div>
+            <div class="info-list">
+              <div><span>PEDIDO</span><b id="sel-order">UB-EMBU-001</b></div>
+              <div><span>DESTINO</span><b id="sel-dest">Residência • Itatuba</b></div>
+              <div><span>DISTÂNCIA RESTANTE</span><b id="sel-distance">4,6 km</b></div>
+              <div><span>PREVISÃO DE CHEGADA</span><b id="sel-eta">12:45</b></div>
+            </div>
+            <div class="telemetry">
+              <div><span>VELOCIDADE</span><b id="sel-speed">34 km/h</b></div>
+              <div><span>ALTITUDE</span><b id="sel-alt">112 m</b></div>
+              <div><span>BATERIA</span><b id="sel-battery">76%</b></div>
+              <div><span>TEMP. CARGA</span><b id="sel-temp">4,1°C</b></div>
+            </div>
+            <div class="connectivity"><span>GPS ✓</span><span>4G/5G ✓</span><span>LBS ✓</span></div>
+            <button class="primary" id="start-sim">▶ INICIAR SIMULAÇÃO</button>
+          </aside>
+        </div>
+
+        <div class="bottom-grid">
+          <section class="panel">
+            <div class="panel-head"><h2>ÚLTIMAS ENTREGAS</h2></div>
+            <div id="latest-list" class="list"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>ALERTAS ATIVOS</h2></div>
+            <div id="alerts-list" class="alerts-list"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>STATUS DA FROTA</h2></div>
+            <div class="fleet-ring">
+              <div class="ring"><strong>12</strong><span>TOTAL</span></div>
+              <div class="fleet-legend"><span>● Operando <b>8</b></span><span>● Disponível <b>2</b></span><span>● Retornando <b>2</b></span></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="deliveries">
+        <section class="panel big">
+          <div class="panel-head"><h2>ENTREGAS</h2><input id="search" placeholder="Buscar pedido, drone ou destino"></div>
+          <div class="table-wrap"><table><thead><tr><th>Pedido</th><th>Drone</th><th>Destino</th><th>Status</th><th>Temp.</th><th>ETA</th></tr></thead><tbody id="deliveries-body"></tbody></table></div>
+        </section>
+      </section>
+
+      <section class="view" id="tracking">
+        <section class="panel big tracking-card">
+          <div><span class="eyebrow">PEDIDO</span><h2>UB-EMBU-001</h2><span class="status-pill pulse" id="ops-track-status">EM TRÂNSITO</span></div>
+          <div class="progress-wrap">
+            <div class="progress-label"><span>Progresso da entrega</span><b id="progress-text">62%</b></div>
+            <div class="progress"><i id="progress-bar" style="width:62%"></i></div>
+          </div>
+          <div class="tracking-metrics">
+            <article><span>Temperatura</span><b id="tracking-temp">4,2°C</b><small>faixa 2–8°C</small></article>
+            <article><span>Bateria</span><b id="tracking-battery">76%</b><small>DRN-001</small></article>
+            <article><span>ETA</span><b id="tracking-eta">12:45</b><small>simulado</small></article>
+          </div>
+          <div class="timeline" id="ops-timeline">
+            <div class="done">✓ Pedido recebido <small>10:52</small></div>
+            <div class="done">✓ Carga preparada <small>11:14</small></div>
+            <div class="done">✓ Decolagem autorizada <small>11:20</small></div>
+            <div class="current">● Em trânsito <small>Agora</small></div>
+            <div>○ Próximo ao destino</div>
+            <div>○ Entrega concluída</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="fleet"><div class="fleet-cards" id="fleet-cards"></div></section>
+
+
+      <section class="view" id="safety">
+        <div class="safety-hero">
+          <span class="eyebrow">SEGURANÇA & IMPACTO</span>
+          <h2>Por que considerar a entrega aérea?</h2>
+          <p>Esta aba apresenta contexto de segurança viária e os controles previstos para a operação por drone. O objetivo é mostrar redução de exposição ao trânsito — não afirmar que drones eliminam todos os riscos.</p>
+        </div>
+
+        <div class="safety-metrics">
+          <article><span>TRÂNSITO • BRASIL</span><strong>~35 mil</strong><small>mortes anuais citadas pelo Ministério dos Transportes em 2025</small></article>
+          <article><span>RODOVIAS FEDERAIS</span><strong>~5 mil</strong><small>mortes anuais citadas no mesmo contexto</small></article>
+          <article><span>ESTADUAIS + CIDADES</span><strong>~30 mil</strong><small>mortes anuais citadas no mesmo contexto</small></article>
+          <article><span>FATOR HUMANO</span><strong>53,7%</strong><small>em estudo federal de 2018, associados a negligência/imprudência</small></article>
+        </div>
+
+        <div class="safety-grid">
+          <section class="panel big">
+            <div class="panel-head"><h2>TRANSPORTE TERRESTRE × DRONE</h2></div>
+            <div class="compare-table">
+              <div class="compare-head"><span>Indicador</span><b>🚐 Terrestre</b><b>🚁 Drone</b></div>
+              <div><span>Exposição a congestionamentos</span><b>Alta</b><b>Reduzida</b></div>
+              <div><span>Interação com tráfego viário</span><b>Direta</b><b>Reduzida</b></div>
+              <div><span>Monitoramento da missão</span><b>GPS</b><b>GPS + telemetria</b></div>
+              <div><span>Acesso à carga</span><b>Convencional</b><b>Compartimento + QR</b></div>
+              <div><span>Áreas mais afastadas</span><b>Depende da malha viária</b><b>Trajeto aéreo planejado</b></div>
+            </div>
+          </section>
+
+          <section class="panel big">
+            <div class="panel-head"><h2>CONTROLES DE SEGURANÇA DO DRONE</h2></div>
+            <div class="risk-list">
+              <div><span>🔋</span><p><b>Bateria insuficiente</b><small>Checagem de autonomia antes da missão e reserva para retorno.</small></p></div>
+              <div><span>🌧️</span><p><b>Clima adverso</b><small>Pausa da missão, rota alternativa e contingência terrestre.</small></p></div>
+              <div><span>📡</span><p><b>Perda de comunicação</b><small>Procedimento de segurança e retorno programado.</small></p></div>
+              <div><span>🔒</span><p><b>Acesso indevido à carga</b><small>Compartimento travado e liberação simulada por QR apenas no destino.</small></p></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel big source-box">
+          <div class="panel-head"><h2>FONTES E CONTEXTO</h2></div>
+          <p><b>Ministério dos Transportes, 18/02/2025:</b> aproximadamente 5 mil mortes em rodovias federais e 30 mil em rodovias estaduais/cidades.</p>
+          <p><b>Ministério dos Transportes, 25/09/2018:</b> estudo federal apontou 53,7% dos acidentes associados à negligência/imprudência dos motoristas.</p>
+          <p><b>PRF:</b> o Anuário Estatístico 2024 e a base aberta de acidentes podem ser usados para aprofundar os indicadores.</p>
+          <p class="source-note">Os números são contexto de segurança viária, e não uma comparação direta de taxa de acidentes entre veículos terrestres e drones.</p>
+        </section>
+      </section>
+
+      <section class="view" id="alerts">
+        <section class="panel big">
+          <div class="panel-head"><h2>CENTRAL DE ALERTAS</h2></div>
+          <div id="alerts-page" class="alerts-list large"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="incident-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <span class="alert-icon">⚠</span>
+      <span class="eyebrow">ALERTA OPERACIONAL</span>
+      <h2>Condições climáticas adversas detectadas</h2>
+      <p>O DRN-001 foi pausado temporariamente para preservar a segurança da carga e da operação.</p>
+      <div class="incident-actions">
+        <button data-incident="wait">AGUARDAR CONDIÇÕES</button>
+        <button data-incident="backup">ACIONAR DRONE RESERVA</button>
+        <button data-incident="ground">ACIONAR ENTREGA TERRESTRE</button>
+      </div>
+      <button id="close-modal" class="ghost full">Fechar</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
